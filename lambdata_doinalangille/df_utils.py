@@ -5,36 +5,84 @@ utility functions for working with DataFrames
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# Function to split dates ("MM/DD/YYYY", etc.) into multiple columns
-def date_split(X, col):
+class Dataframe(object):
+    def __init__(self, data):
+      """
+      Initialize method for working with utils
+
+      Parameters
+      ----------
+        data : ndarray (structured or homogeneous), Iterable, dict, or DataFrame
+            Dict can contain Series, arr
+
+      Example
+      -------
+          my_data = Dataframe(data)      
+      """
+      self.data = data
+
+    def train_val_test(self):
+      """
+      Train/validate/test split method for a dataframe.
+      Uses the train_test_split method from sklearn.model_selection.
+      Test size=0.20
+          
+      Returns
+      -------
+      List
+          List containing three dataframes
+
+      Examples
+      --------
+          train = my_data.train_val_test()[0]
+          validate = my_data.train_val_test()[1]
+          test = my_data.train_val_test()[2]
+      """
+      train, test = train_test_split(self.data, train_size=0.80, test_size=0.20, random_state=42)
+      train, val = train_test_split(train, train_size=0.80, test_size=0.20, random_state=42)
+      return train, val, test
+
+class Dates(Dataframe):
+  def __init__(self, data, column):
     """
-    Split a date into the year, month, and day columns.
-    X - dataframe;
-    col - string, column of X dataframe, containing dates; (example: 'Date_recorded')
+    Initialize method for the class
+
+    Parameters
+    ----------
+    data : ndarray (structured or homogeneous), Iterable, dict, or DataFrame
+        Dict can contain Series, arrays, constants, or list-like objects.
+    column : Index or array-like
+        Column containing the dates to split
+    
+    Example
+    -------
+        my_df = Dates(df, 'date_recorded')
+    """
+    super().__init__(data)
+    self.column = column
+  def date_split(self):
+    """
+    Split a date column into multiple columns (year, month, day).
+
+    Returns
+    -------
+    DataFrame
+        The dataframe with three more columns added (year, month, day)
+    
+    Example
+    -------
+        my_df.date_split()
+
     """
 
     # Convert the date column to datetime format
-    X[col] = pd.to_datetime(X[col], infer_datetime_format=True)
+    self.data[self.column] = pd.to_datetime(self.data[self.column], infer_datetime_format=True)
 
     # Extract components from date
-    X['year'] = X[col].dt.year
-    X['month'] = X[col].dt.month
-    X['day'] = X[col].dt.day
+    self.data['year'] = self.data[self.column].dt.year
+    self.data['month'] = self.data[self.column].dt.month
+    self.data['day'] = self.data[self.column].dt.day
 
-    return X
+    return self.data
 
-# Train/validate/test split function for a dataframe
-def train_val_test(df):
-  """
-  Train/validate/test split function for a dataframe.
-  This function uses the train_test_split method from sklearn.model_selection
-  Test size=0.20
 
-  Usage:
-  train = train_val_test(df)[0]
-  validate = train_val_test(df)[1]
-  test = train_val_test(df)[2]
-  """
-  train, test = train_test_split(df, train_size=0.80, test_size=0.20, random_state=42)
-  train, val = train_test_split(train, train_size=0.80, test_size=0.20, random_state=42)
-  return train, val, test
