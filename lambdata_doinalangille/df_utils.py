@@ -1,7 +1,7 @@
 """
 utility functions for working with DataFrames
 """
-
+import datetime as dt
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -82,8 +82,7 @@ class Dates(Dataframe):
         """
 
         # Convert the date column to datetime format
-        self.data[self.column] = pd.to_datetime(
-          self.data[self.column], infer_datetime_format=True)
+        self.data[self.column] = pd.to_datetime(self.data[self.column], infer_datetime_format=True)
         # Extract components from date
         self.data['year'] = self.data[self.column].dt.year
         self.data['month'] = self.data[self.column].dt.month
